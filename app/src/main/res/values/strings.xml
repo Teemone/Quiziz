@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Quiziz</string>
+    <string name="quiz_app">Quiz App!</string>
+    <string name="welcome">Welcome</string>
+    <string name="please_enter_your_name_to_continue">Please enter your name to continue</string>
+    <string name="name">Name</string>
+    <string name="_continue">Continue</string>
+    <string name="toyota">Toyota</string>
+    <string name="honda">Honda</string>
+    <string name="hyundai">Hyundai</string>
+    <string name="bentley">Bentley</string>
+    <string name="audi">Audi</string>
+    <string name="acura">Acura</string>
+    <string name="corvette">Corvette</string>
+    <string name="greatWall">Great wall</string>
+    <string name="dodgeViper">Dodge viper</string>
+    <string name="lexus">Lexus</string>
+    <string name="koenigsegg">Koenigsegg</string>
+    <string name="maserati">Maserati</string>
+    <string name="mazda">Mazda</string>
+    <string name="renault">Renault</string>
+    <string name="suzuki">Suzuki</string>
+    <string name="tesla">Tesla</string>
+    <string name="tata">Tata</string>
+    <string name="peugeot">Peugeot</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="lorem_ipsum">Lorem Ipsum</string>
+    <string name="submit">submit</string>
+    <string name="pgb_text">1/5</string>
+    <string name="default_text">What vehicle brand does this logo belong to?</string>
+    <string name="vehicle_logo">vehicle logo</string>
+    <string name="congratulations">%s! %s</string>
+    <string name="your_score_is">Your score is %d out of %d</string>
+    <string name="trophy">trophy</string>
+    <string name="finish">finish</string>
+    <string name="next">next</string>
+</resources>
