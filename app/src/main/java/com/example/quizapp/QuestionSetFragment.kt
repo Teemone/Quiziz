@@ -1,22 +1,25 @@
 package com.example.quizapp
 
-import android.content.Intent
 import android.graphics.Typeface
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
-import com.example.quizapp.databinding.ActivityQuestionSetBinding
+import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import com.example.quizapp.databinding.FragmentQuestionSetBinding
 
-class QuestionSetActivity : AppCompatActivity(),
-    View.OnClickListener {
-    private lateinit var binding: ActivityQuestionSetBinding
+class QuestionSet : Fragment(), View.OnClickListener {
+    private var _binding: FragmentQuestionSetBinding? = null
+    private lateinit var flQuestionSet: FrameLayout
+    private val binding get() = _binding!!
+    private var username: String? = null
     private var count = 1
     private var currentSelection: Int? = null
-    private var username: String? = null
     private var correctAnswers = 0
     private val questions = listOfQuestions()
 
@@ -35,11 +38,22 @@ class QuestionSetActivity : AppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setTheme(R.style.Theme_QuizApp2)
-        binding = ActivityQuestionSetBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        arguments?.let {
+            username = it.getString(Object.USERNAME)
+        }
+    }
 
-        username = intent.getStringExtra(Object.USERNAME)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentQuestionSetBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        flQuestionSet = binding.flQuestionSet
 
         binding.tvOption1.setOnClickListener(this)
         binding.tvOption2.setOnClickListener(this)
@@ -48,15 +62,6 @@ class QuestionSetActivity : AppCompatActivity(),
         binding.btnSubmit.setOnClickListener(this)
 
         updateUi()
-
-    }
-
-    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-        super.onSaveInstanceState(outState, outPersistentState)
-
-        outState.putInt(Object.CORRECT_ANSWERS, correctAnswers)
-        outState.putInt(Object.KEY_PROGRESS_BAR_COUNT, count)
-        currentSelection?.let { outState.putInt(Object.KEY_SELECTED_OPTION, it) }
 
     }
 
@@ -88,7 +93,7 @@ class QuestionSetActivity : AppCompatActivity(),
 
     private fun disableIndicators(){
         for (i in mapOfId2Id2.values){
-            findViewById<TextView>(i).visibility = View.GONE
+            flQuestionSet.findViewById<TextView>(i).visibility = View.GONE
         }
     }
 
@@ -99,28 +104,28 @@ class QuestionSetActivity : AppCompatActivity(),
         when(v?.id){
 
             R.id.tv_option1 -> {
-                binding.tvOption1.background = ContextCompat.getDrawable(this, R.drawable.tv_border_selected)
+                binding.tvOption1.background = ContextCompat.getDrawable(requireContext(), R.drawable.tv_border_selected)
                 binding.a.setTypeface(binding.a.typeface, Typeface.BOLD)
                 currentSelection = R.id.tv_option1
                 setTextViewsBgUnselected(false)
             }
 
             R.id.tv_option2 -> {
-                binding.tvOption2.background = ContextCompat.getDrawable(this, R.drawable.tv_border_selected)
+                binding.tvOption2.background = ContextCompat.getDrawable(requireContext(), R.drawable.tv_border_selected)
                 binding.b.setTypeface(binding.b.typeface, Typeface.BOLD)
                 currentSelection = R.id.tv_option2
                 setTextViewsBgUnselected(false)
             }
 
             R.id.tv_option3 -> {
-                binding.tvOption3.background = ContextCompat.getDrawable(this, R.drawable.tv_border_selected)
+                binding.tvOption3.background = ContextCompat.getDrawable(requireContext(), R.drawable.tv_border_selected)
                 binding.c.setTypeface(binding.c.typeface, Typeface.BOLD)
                 currentSelection = R.id.tv_option3
                 setTextViewsBgUnselected(false)
             }
 
             R.id.tv_option4 -> {
-                binding.tvOption4.background = ContextCompat.getDrawable(this, R.drawable.tv_border_selected)
+                binding.tvOption4.background = ContextCompat.getDrawable(requireContext(), R.drawable.tv_border_selected)
                 binding.d.setTypeface(binding.d.typeface, Typeface.BOLD)
                 currentSelection = R.id.tv_option4
                 setTextViewsBgUnselected(false)
@@ -137,12 +142,19 @@ class QuestionSetActivity : AppCompatActivity(),
                         }
 
                         else -> {
-                            val intent = Intent(this, ResultActivity::class.java)
-                            intent.putExtra(Object.USERNAME, username)
-                            intent.putExtra(Object.TOTAL_QUESTIONS, questions.size)
-                            intent.putExtra(Object.CORRECT_ANSWERS, correctAnswers)
-                            startActivity(intent)
-                            finish()
+                            val toResultFragment =
+                                QuestionSetDirections.actionQuestionSetToResultFragment(
+                                    username = username!!,
+                                    totalQuestions = questions.size,
+                                    correctAnswers = correctAnswers
+                                )
+                            v.findNavController().navigate(toResultFragment)
+//                            val intent = Intent(this, ResultActivity::class.java)
+//                            intent.putExtra(Object.USERNAME, username)
+//                            intent.putExtra(Object.TOTAL_QUESTIONS, questions.size)
+//                            intent.putExtra(Object.CORRECT_ANSWERS, correctAnswers)
+//                            startActivity(intent)
+//                            finish()
                         }
                     }
                 }
@@ -163,17 +175,17 @@ class QuestionSetActivity : AppCompatActivity(),
 
     private fun firstPart() {
         val optionId = mapOfLayout2Tv[currentSelection]
-        val optionTv = findViewById<TextView>(optionId!!)
+        val optionTv = flQuestionSet.findViewById<TextView>(optionId!!)
         val indicator = mapOfId2Id2[currentSelection]
-        val indicatorTv = findViewById<TextView>(indicator!!)
+        val indicatorTv = flQuestionSet.findViewById<TextView>(indicator!!)
         val correctAnswer = questions[count-1].correctAnswer
-        val csLayout = findViewById<LinearLayoutCompat>(currentSelection!!)
+        val csLayout = flQuestionSet.findViewById<LinearLayoutCompat>(currentSelection!!)
 
         // Display incorrect answer
         if (optionTv.text.toString() != correctAnswer) {
             csLayout.background =
-                ContextCompat.getDrawable(this, R.drawable.tv_border_red)
-            indicatorTv.background = ContextCompat.getDrawable(this, R.drawable.dot_indicator_red)
+                ContextCompat.getDrawable(requireContext(), R.drawable.tv_border_red)
+            indicatorTv.background = ContextCompat.getDrawable(requireContext(), R.drawable.dot_indicator_red)
             indicatorTv.visibility = View.VISIBLE
         }
         else
@@ -181,12 +193,12 @@ class QuestionSetActivity : AppCompatActivity(),
 
         // Display the correct answer
         for (items in getTextViews()) {
-            val view = findViewById<TextView>(items)
+            val view = flQuestionSet.findViewById<TextView>(items)
             if (view.text.toString() == correctAnswer) {
-                val indi = findViewById<TextView>(mapOfId2Id2[returnTextView2Layout(view.id).id]!!)
+                val indi = flQuestionSet.findViewById<TextView>(mapOfId2Id2[returnTextView2Layout(view.id).id]!!)
                 returnTextView2Layout(view.id).background =
-                    ContextCompat.getDrawable(this, R.drawable.tv_border_green)
-                indi.background = ContextCompat.getDrawable(this, R.drawable.dot_indicator_green)
+                    ContextCompat.getDrawable(requireContext(), R.drawable.tv_border_green)
+                indi.background = ContextCompat.getDrawable(requireContext(), R.drawable.dot_indicator_green)
                 indi.visibility = View.VISIBLE
             }
         }
@@ -206,7 +218,7 @@ class QuestionSetActivity : AppCompatActivity(),
      */
     private fun isClickable(bool: Boolean){
         for (i in getLayouts()){
-            val v = findViewById<LinearLayoutCompat>(i)
+            val v = flQuestionSet.findViewById<LinearLayoutCompat>(i)
             v.isClickable = bool
         }
     }
@@ -221,22 +233,22 @@ class QuestionSetActivity : AppCompatActivity(),
                 if (currentSelection == tv ){
                     continue
                 }
-                findViewById<LinearLayoutCompat>(tv).background = ContextCompat.getDrawable(this, R.drawable.tv_border)
+                flQuestionSet.findViewById<LinearLayoutCompat>(tv).background = ContextCompat.getDrawable(requireContext(), R.drawable.tv_border)
             }
 
             for (i in mapOfLayout2Tv){
                 if (currentSelection == i.key){
                     continue
                 }
-                findViewById<TextView>(i.value).typeface = Typeface.DEFAULT
+                flQuestionSet.findViewById<TextView>(i.value).typeface = Typeface.DEFAULT
             }
-    }
+        }
         else{
             for (tv in getLayouts()){
-                findViewById<LinearLayoutCompat>(tv).background = ContextCompat.getDrawable(this, R.drawable.tv_border)
+                flQuestionSet.findViewById<LinearLayoutCompat>(tv).background = ContextCompat.getDrawable(requireContext(), R.drawable.tv_border)
             }
             for (i in mapOfLayout2Tv){
-                findViewById<TextView>(i.value).typeface = Typeface.DEFAULT
+                flQuestionSet.findViewById<TextView>(i.value).typeface = Typeface.DEFAULT
             }
         }
 
@@ -254,14 +266,18 @@ class QuestionSetActivity : AppCompatActivity(),
 //        return findViewById(mapOfLayout2Tv[id]!!)
 //    }
 
-    private fun returnTextView2Layout(id: Int): LinearLayoutCompat{
+    private fun returnTextView2Layout(id: Int): LinearLayoutCompat {
         var layout = 0
         for (i in mapOfLayout2Tv){
             if (i.value == id){
                 layout = i.key
             }
         }
-        return findViewById(layout)
+        return flQuestionSet.findViewById(layout)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

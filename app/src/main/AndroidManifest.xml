@@ -14,14 +14,6 @@
         android:theme="@style/Theme.QuizApp"
         tools:targetApi="31">
         <activity
-            android:name=".ResultActivity"
-            android:exported="false" />
-        <activity
-            android:name=".QuestionSetActivity"
-            android:exported="false"
-            android:theme="@style/Theme.QuizApp2"
-            android:windowSoftInputMode="adjustNothing" />
-        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/SplashScreen"
